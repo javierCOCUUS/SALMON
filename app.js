@@ -341,23 +341,15 @@
 
     const response = await fetch(endpointUrl, {
       method: "POST",
-      mode: "cors",
+      mode: "no-cors",
       headers: {
         "Content-Type": "text/plain;charset=utf-8"
       },
       body: JSON.stringify(payload)
     });
 
-    if (!response.ok) {
-      throw new Error("El endpoint de Google Sheets ha respondido con error.");
-    }
-
-    const result = await response.json().catch(function () {
-      return { ok: true };
-    });
-
-    if (result.ok === false) {
-      throw new Error(result.error || "No se pudo guardar en Google Sheets.");
+    if (!response) {
+      throw new Error("No se pudo enviar la respuesta a Google Sheets.");
     }
   }
 
