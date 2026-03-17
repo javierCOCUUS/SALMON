@@ -58,6 +58,42 @@ Ejemplo:
 https://javiercocuus.github.io/SALMON/dynamic-surveys/?survey=salmon-marzo-01&lang=en
 ```
 
+## Como crear una encuesta nueva
+
+1. Abre la Google Sheet conectada a `dynamic-surveys`.
+2. En la pestana `Encuestas`, duplica una fila existente o crea una nueva.
+3. Asigna un `survey_id` nuevo y unico.
+   Ejemplo: `salmon-abril-02`
+4. Rellena los textos en espanol e ingles.
+5. Define `fecha`, `sesion` y `sheet_respuestas`.
+   Ejemplo de `sheet_respuestas`: `respuestas_salmon_abril_02`
+6. Si quieres que sea la encuesta por defecto, marca `activa` como `TRUE`.
+7. Si habia otra encuesta activa, cambia su `activa` a `FALSE`.
+8. En la pestana `Preguntas`, crea una fila por pregunta usando el mismo `survey_id`.
+9. Define `orden`, `id_pregunta`, textos y extremos de escala en ambos idiomas.
+
+## Reglas practicas
+
+- Cada encuesta nueva debe tener su propio `survey_id`.
+- Cada encuesta nueva debe tener su propia `sheet_respuestas`.
+- No hace falta tocar el codigo para cambiar preguntas, textos o instrucciones.
+- La web cargara la encuesta marcada como activa, salvo que se abra con `?survey=...`.
+
+## Ejemplos de uso
+
+- Encuesta activa por defecto:
+  `https://javiercocuus.github.io/SALMON/dynamic-surveys/`
+- Encuesta concreta:
+  `https://javiercocuus.github.io/SALMON/dynamic-surveys/?survey=salmon-abril-02`
+- Encuesta concreta en ingles:
+  `https://javiercocuus.github.io/SALMON/dynamic-surveys/?survey=salmon-abril-02&lang=en`
+
+## Mantenimiento
+
+- Si cambias solo datos en Google Sheets, no hace falta volver a desplegar GitHub Pages.
+- Si cambias el codigo del Apps Script, si hace falta volver a implementarlo en Google Apps Script.
+- Si cambias archivos de `dynamic-surveys` en el repo, hay que subirlos a GitHub para que Pages los publique.
+
 ## Apps Script
 
 1. Abre una hoja nueva en Google Sheets.
