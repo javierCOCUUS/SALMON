@@ -12,19 +12,19 @@ window.SALMON_SURVEY = {
   },
   instructions: [
     "Se le presentaran 6 muestras codificadas.",
-    "Evalue las muestras en el orden en que se le presenten, de izquierda a derecha, comenzando por la muestra mas cercana.",
-    "Observe primero la muestra y evalue color y aroma.",
-    "Despues pruebe la muestra y evalue sabor y textura.",
-    "Marque una linea vertical (|) en cada escala segun la intensidad percibida.",
+    "Evalúe las muestras en el orden en que se le presenten, de izquierda a derecha, comenzando por la muestra más cercana.",
+    "Observe primero la muestra y evalúe color y aroma.",
+    "Después pruebe la muestra y evalúe sabor y textura.",
+    "Desplace el control en cada escala según la intensidad percibida.",
     "El extremo izquierdo representa menor intensidad y el extremo derecho mayor intensidad.",
-    "Enjuaguese la boca con agua entre muestras."
+    "Enjuáguese la boca con agua entre muestras."
   ],
   participantFields: [
     { id: "sessionDate", label: "Fecha" },
-    { id: "sessionNumber", label: "Sesion" },
-    { id: "participantCode", label: "Codigo del juez o ID" },
+    { id: "sessionNumber", label: "Sesión" },
+    { id: "participantCode", label: "Código del juez o ID" },
     { id: "productBatch", label: "Producto o lote" },
-    { id: "sampleCode", label: "MUESTRA (CODIGO)" },
+    { id: "sampleCode", label: "MUESTRA (CÓDIGO)" },
     { id: "notes", label: "Observaciones" }
   ],
   questions: [

@@ -223,8 +223,8 @@
     entryCount.textContent = config.storageMode === "remote" ? "Nube" : String(entries.length);
 
     const headers = [
-      "Codigo",
-      "Sesion",
+      "Código",
+      "Sesión",
       "Producto/Lote",
       "Muestra",
       "Fecha cata",
