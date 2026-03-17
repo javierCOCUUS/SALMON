@@ -180,7 +180,6 @@
 
     return {
       participantCode: document.getElementById("participant-code").value.trim(),
-      participantName: document.getElementById("participant-name").value.trim(),
       productBatch: document.getElementById("product-batch").value.trim(),
       sampleCode: Number(document.getElementById("sample-code").value),
       sessionDate: document.getElementById("session-date").value,
@@ -226,7 +225,6 @@
     const headers = [
       "Codigo",
       "Sesion",
-      "Nombre",
       "Producto/Lote",
       "Muestra",
       "Fecha cata",
@@ -253,7 +251,6 @@
       const cells = [
         entry.participant.participantCode,
         entry.participant.sessionNumber,
-        entry.participant.participantName,
         entry.participant.productBatch,
         entry.participant.sampleCode,
         entry.participant.sessionDate,
@@ -275,7 +272,6 @@
       "createdAt",
       "participantCode",
       "sessionNumber",
-      "participantName",
       "productBatch",
       "sampleCode",
       "sessionDate",
@@ -289,7 +285,6 @@
         entry.createdAt,
         entry.participant.participantCode,
         entry.participant.sessionNumber,
-        entry.participant.participantName,
         entry.participant.productBatch,
         entry.participant.sampleCode,
         entry.participant.sessionDate,

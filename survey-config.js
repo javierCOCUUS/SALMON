@@ -22,7 +22,6 @@ window.SALMON_SURVEY = {
   participantFields: [
     { id: "sessionDate", label: "Fecha" },
     { id: "sessionNumber", label: "Sesion" },
-    { id: "participantName", label: "Juez" },
     { id: "participantCode", label: "Codigo del juez o ID" },
     { id: "productBatch", label: "Producto o lote" },
     { id: "sampleCode", label: "MUESTRA (CODIGO)" },
