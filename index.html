@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SALMON | Cata de producto</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Ficha sensorial</p>
+        <h1 id="survey-title">SALMON</h1>
+        <p class="hero-copy">
+          Registro de jueces y captura de respuestas con escala 0-100.
+        </p>
+      </div>
+      <div class="hero-card">
+        <p class="hero-card-label">Registros guardados</p>
+        <p id="entry-count" class="hero-card-value">0</p>
+        <p class="hero-card-help">Se almacenan en este navegador.</p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Cabecera de sesion</h2>
+          <p>Completa los datos identificativos antes de registrar la ficha.</p>
+        </div>
+
+        <form id="participant-form" class="stack" novalidate>
+          <div class="meta-grid">
+            <label class="field">
+              <span>Fecha</span>
+              <input id="session-date" name="sessionDate" type="date" required>
+            </label>
+
+            <label class="field">
+              <span>Sesion</span>
+              <input id="session-number" name="sessionNumber" type="text" maxlength="20" required>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Juez</span>
+            <input id="participant-name" name="participantName" type="text" maxlength="100" required>
+          </label>
+
+          <label class="field">
+            <span>Codigo del juez o ID</span>
+            <input id="participant-code" name="participantCode" type="text" maxlength="40" required>
+          </label>
+
+          <label class="field">
+            <span>Producto o lote</span>
+            <input id="product-batch" name="productBatch" type="text" maxlength="100" placeholder="Opcional">
+          </label>
+
+          <label class="field">
+            <span>MUESTRA (CODIGO)</span>
+            <input id="sample-code" name="sampleCode" type="number" step="1" min="0" required>
+          </label>
+
+          <label class="field">
+            <span>Observaciones</span>
+            <textarea id="notes" name="notes" rows="3" maxlength="300" placeholder="Opcional"></textarea>
+          </label>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Instrucciones</h2>
+          <p id="instructions-summary">Sigue el procedimiento indicado antes de evaluar cada muestra.</p>
+        </div>
+
+        <div class="instructions-card">
+          <ol id="instructions-list" class="instructions-list"></ol>
+        </div>
+      </section>
+
+      <section class="panel survey-panel">
+        <div class="panel-header">
+          <h2>Evaluacion</h2>
+          <p id="survey-summary">Carga tus preguntas en el archivo de configuracion.</p>
+        </div>
+
+        <form id="survey-form" class="stack" novalidate>
+          <div id="survey-questions" class="question-list"></div>
+
+          <div class="actions">
+            <button type="submit" class="button button-primary">Guardar encuesta</button>
+            <button type="button" id="reset-form" class="button button-secondary">Limpiar formulario</button>
+          </div>
+        </form>
+
+        <p id="form-status" class="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <section class="panel panel-results">
+      <div class="panel-header panel-header-results">
+        <div>
+          <h2>Resultados</h2>
+          <p>Consulta, exporta o borra los registros guardados en este navegador.</p>
+        </div>
+        <div class="toolbar">
+          <button type="button" id="export-csv" class="button button-secondary">Exportar CSV</button>
+          <button type="button" id="export-json" class="button button-secondary">Exportar JSON</button>
+          <button type="button" id="clear-storage" class="button button-danger">Borrar todo</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead id="results-head"></thead>
+          <tbody id="results-body">
+            <tr>
+              <td class="empty-state" colspan="99">Todavia no hay respuestas guardadas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="survey-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
