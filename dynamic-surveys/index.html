@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Surveys</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow" data-i18n="appBadge"></p>
+        <h1 id="survey-title">Dynamic Surveys</h1>
+        <p class="hero-copy" id="survey-description"></p>
+      </div>
+      <div class="hero-card">
+        <label class="field inline-field">
+          <span data-i18n="language"></span>
+          <select id="language-switcher">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <p class="hero-card-label" data-i18n="surveyId"></p>
+        <p id="survey-id" class="hero-card-value">-</p>
+        <p class="hero-card-help" data-i18n="surveyHint"></p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <h2 data-i18n="metaTitle"></h2>
+          <p data-i18n="metaHelp"></p>
+        </div>
+
+        <form id="meta-form" class="stack" novalidate>
+          <div class="meta-grid">
+            <label class="field">
+              <span data-i18n="date"></span>
+              <input id="session-date" name="sessionDate" type="date" required>
+            </label>
+
+            <label class="field">
+              <span data-i18n="session"></span>
+              <input id="session-number" name="sessionNumber" type="text" maxlength="20" required>
+            </label>
+          </div>
+
+          <label class="field">
+            <span data-i18n="panelistCode"></span>
+            <input id="participant-code" name="participantCode" type="text" maxlength="40" required>
+          </label>
+
+          <label class="field">
+            <span data-i18n="batch"></span>
+            <input id="product-batch" name="productBatch" type="text" maxlength="100">
+          </label>
+
+          <label class="field">
+            <span data-i18n="sampleCode"></span>
+            <input id="sample-code" name="sampleCode" type="number" step="1" min="0" required>
+          </label>
+
+          <label class="field">
+            <span data-i18n="notes"></span>
+            <textarea id="notes" name="notes" rows="3" maxlength="300"></textarea>
+          </label>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2 data-i18n="instructions"></h2>
+          <p id="survey-summary"></p>
+        </div>
+
+        <div class="instructions-card">
+          <ol id="instructions-list" class="instructions-list"></ol>
+        </div>
+      </section>
+
+      <section class="panel survey-panel">
+        <div class="panel-header">
+          <h2 data-i18n="evaluation"></h2>
+          <p id="status-detail"></p>
+        </div>
+
+        <form id="survey-form" class="stack" novalidate>
+          <div id="survey-questions" class="question-list"></div>
+
+          <div class="actions">
+            <button type="submit" class="button button-primary" data-i18n="save"></button>
+            <button type="button" id="reset-form" class="button button-secondary" data-i18n="reset"></button>
+          </div>
+        </form>
+
+        <p id="form-status" class="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="survey-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
