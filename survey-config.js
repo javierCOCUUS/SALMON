@@ -1,5 +1,11 @@
 window.SALMON_SURVEY = {
   title: "FICHA EVALUACION SENSORIAL",
+  storageMode: "remote",
+  remote: {
+    endpointUrl: "",
+    spreadsheetId: "1hFiZNTfYn7lgudhcSBatdz-G9bNTY540xyzQ1E2MNig",
+    sheetName: "Respuestas"
+  },
   session: {
     date: "2026-03-16",
     number: "01"

@@ -37,7 +37,7 @@
   renderQuestions();
   renderTable();
 
-  surveyForm.addEventListener("submit", function (event) {
+  surveyForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const participantData = readParticipantData();
@@ -53,12 +53,16 @@
       answers: answers
     };
 
-    const entries = loadEntries();
-    entries.push(entry);
-    saveEntries(entries);
-    renderTable();
-    resetForms();
-    setStatus("Encuesta guardada correctamente.", "success");
+    setStatus("Guardando encuesta...", "success");
+
+    try {
+      await persistEntry(entry);
+      renderTable();
+      resetForms();
+      setStatus("Encuesta guardada correctamente.", "success");
+    } catch (error) {
+      setStatus(error.message || "No se pudo guardar la encuesta.", "error");
+    }
   });
 
   exportCsvButton.addEventListener("click", function () {
@@ -194,6 +198,10 @@
   }
 
   function loadEntries() {
+    if (config.storageMode === "remote") {
+      return [];
+    }
+
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
       return [];
@@ -213,7 +221,7 @@
 
   function renderTable() {
     const entries = loadEntries();
-    entryCount.textContent = String(entries.length);
+    entryCount.textContent = config.storageMode === "remote" ? "Nube" : String(entries.length);
 
     const headers = [
       "Codigo",
@@ -230,6 +238,11 @@
     resultsHead.innerHTML = `<tr>${headers.map(function (header) {
       return `<th>${escapeHtml(header)}</th>`;
     }).join("")}</tr>`;
+
+    if (config.storageMode === "remote") {
+      resultsBody.innerHTML = '<tr><td class="empty-state" colspan="99">Las respuestas se envian a Google Sheets. Usa la hoja compartida para ver los registros.</td></tr>';
+      return;
+    }
 
     if (!entries.length) {
       resultsBody.innerHTML = '<tr><td class="empty-state" colspan="99">Todavia no hay respuestas guardadas.</td></tr>';
@@ -289,6 +302,63 @@
     return [headers].concat(rows).map(function (row) {
       return row.map(escapeCsvValue).join(",");
     }).join("\n");
+  }
+
+  async function persistEntry(entry) {
+    if (config.storageMode === "remote") {
+      await sendToRemote(entry);
+      return;
+    }
+
+    const entries = loadEntries();
+    entries.push(entry);
+    saveEntries(entries);
+  }
+
+  async function sendToRemote(entry) {
+    const endpointUrl = config.remote?.endpointUrl;
+    if (!endpointUrl) {
+      throw new Error("Falta configurar la URL del Apps Script en survey-config.js.");
+    }
+
+    const payload = {
+      surveyTitle: config.title,
+      spreadsheetId: config.remote?.spreadsheetId || "",
+      sheetName: config.remote?.sheetName || "Respuestas",
+      questionOrder: config.questions.map(function (question) {
+        return question.id;
+      }),
+      questions: config.questions.map(function (question) {
+        return {
+          id: question.id,
+          label: question.label,
+          minLabel: question.minLabel || "0",
+          maxLabel: question.maxLabel || "100"
+        };
+      }),
+      entry: entry
+    };
+
+    const response = await fetch(endpointUrl, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error("El endpoint de Google Sheets ha respondido con error.");
+    }
+
+    const result = await response.json().catch(function () {
+      return { ok: true };
+    });
+
+    if (result.ok === false) {
+      throw new Error(result.error || "No se pudo guardar en Google Sheets.");
+    }
   }
 
   function downloadFile(filename, mimeType, content) {
