@@ -1,5 +1,5 @@
 window.DYNAMIC_SURVEYS_CONFIG = {
-  endpointUrl: "",
+  endpointUrl: "https://script.google.com/macros/s/AKfycbyUXQpI6aiUaO1FTVnEgRZ6YzJfCYH-rfRxM-r8x9Ni2C1jg97hWP-lg5cDT9pNbRg_/exec",
   spreadsheetId: "1HwNt31ghi4eCpIWPA_uQ4rNxV2WSCu-l_IfEgoIT0NI",
   defaultLanguage: "es",
   fallbackSurveyId: "",
