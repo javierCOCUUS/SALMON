@@ -8,6 +8,11 @@
     survey: null
   };
 
+  const storage = {
+    participantCode: "dynamic-surveys.participant-code",
+    productBatch: "dynamic-surveys.product-batch"
+  };
+
   const els = {
     title: document.getElementById("survey-title"),
     desc: document.getElementById("survey-description"),
@@ -22,7 +27,9 @@
     reset: document.getElementById("reset-form"),
     lang: document.getElementById("language-switcher"),
     sessionDate: document.getElementById("session-date"),
-    sessionNumber: document.getElementById("session-number")
+    sessionNumber: document.getElementById("session-number"),
+    participantCode: document.getElementById("participant-code"),
+    productBatch: document.getElementById("product-batch")
   };
 
   els.lang.value = state.lang;
@@ -41,6 +48,14 @@
   els.reset.addEventListener("click", function () {
     resetForms();
     setStatus("", "");
+  });
+
+  els.participantCode.addEventListener("input", function () {
+    persistField(storage.participantCode, els.participantCode.value.trim());
+  });
+
+  els.productBatch.addEventListener("input", function () {
+    persistField(storage.productBatch, els.productBatch.value.trim());
   });
 
   els.surveyForm.addEventListener("submit", async function (event) {
@@ -140,8 +155,9 @@
     els.surveyId.textContent = survey.id || "-";
     els.summary.textContent = `${survey.questions.length} item(s)`;
     els.detail.textContent = survey.sheetName ? `${survey.sheetName}` : "";
-    els.sessionDate.value = survey.session?.date || new Date().toISOString().slice(0, 10);
+    els.sessionDate.value = getTodayDate();
     els.sessionNumber.value = survey.session?.number || "";
+    hydratePersistentFields();
 
     renderInstructionsList(survey.instructions || []);
     renderQuestions(survey.questions || []);
@@ -235,8 +251,9 @@
     els.metaForm.reset();
     els.surveyForm.reset();
     if (state.survey) {
-      els.sessionDate.value = state.survey.session?.date || new Date().toISOString().slice(0, 10);
+      els.sessionDate.value = getTodayDate();
       els.sessionNumber.value = state.survey.session?.number || "";
+      hydratePersistentFields();
       state.survey.questions.forEach(function (question) {
         const slider = document.getElementById(question.id);
         const val = String(question.defaultValue ?? 50);
@@ -268,6 +285,39 @@
     }
     url.searchParams.set("lang", state.lang);
     window.history.replaceState({}, "", url.toString());
+  }
+
+  function hydratePersistentFields() {
+    els.participantCode.value = readPersistedField(storage.participantCode);
+    els.productBatch.value = readPersistedField(storage.productBatch);
+  }
+
+  function persistField(key, value) {
+    try {
+      if (value) {
+        window.localStorage.setItem(key, value);
+      } else {
+        window.localStorage.removeItem(key);
+      }
+    } catch (error) {
+      // Ignore storage failures and keep the form usable.
+    }
+  }
+
+  function readPersistedField(key) {
+    try {
+      return window.localStorage.getItem(key) || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function getTodayDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   }
 
   function escapeHtml(value) {

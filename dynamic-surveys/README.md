@@ -10,6 +10,13 @@ Aplicacion separada para cargar encuestas desde Google Sheets y guardar cada enc
 - `survey-config.js`: configuracion local del endpoint y textos base.
 - `google-apps-script.js`: script para Google Sheets.
 
+## Comportamiento del formulario
+
+- La fecha se rellena automaticamente con el dia actual del dispositivo.
+- El codigo del catador o juez queda guardado en ese navegador y se reutiliza en las siguientes sesiones.
+- El ultimo valor escrito en `Producto o lote` tambien queda guardado en ese navegador.
+- Al pulsar `Limpiar formulario` o tras guardar, se conservan el codigo del catador y el producto/lote guardados.
+
 ## Google Sheets
 
 Crea una hoja nueva para este sistema. Necesita estas pestanas:
