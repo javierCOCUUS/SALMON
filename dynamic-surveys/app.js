@@ -9,6 +9,7 @@
   };
 
   const storage = {
+    sessionNumber: "dynamic-surveys.session-number",
     participantCode: "dynamic-surveys.participant-code",
     productBatch: "dynamic-surveys.product-batch"
   };
@@ -56,6 +57,10 @@
 
   els.productBatch.addEventListener("input", function () {
     persistField(storage.productBatch, els.productBatch.value.trim());
+  });
+
+  els.sessionNumber.addEventListener("input", function () {
+    persistField(storage.sessionNumber, els.sessionNumber.value.trim());
   });
 
   els.surveyForm.addEventListener("submit", async function (event) {
@@ -156,7 +161,6 @@
     els.summary.textContent = `${survey.questions.length} item(s)`;
     els.detail.textContent = survey.sheetName ? `${survey.sheetName}` : "";
     els.sessionDate.value = getTodayDate();
-    els.sessionNumber.value = survey.session?.number || "";
     hydratePersistentFields();
 
     renderInstructionsList(survey.instructions || []);
@@ -252,7 +256,6 @@
     els.surveyForm.reset();
     if (state.survey) {
       els.sessionDate.value = getTodayDate();
-      els.sessionNumber.value = state.survey.session?.number || "";
       hydratePersistentFields();
       state.survey.questions.forEach(function (question) {
         const slider = document.getElementById(question.id);
@@ -288,6 +291,7 @@
   }
 
   function hydratePersistentFields() {
+    els.sessionNumber.value = readPersistedField(storage.sessionNumber) || state.survey?.session?.number || "";
     els.participantCode.value = readPersistedField(storage.participantCode);
     els.productBatch.value = readPersistedField(storage.productBatch);
   }

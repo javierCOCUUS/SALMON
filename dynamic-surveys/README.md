@@ -13,9 +13,10 @@ Aplicacion separada para cargar encuestas desde Google Sheets y guardar cada enc
 ## Comportamiento del formulario
 
 - La fecha se rellena automaticamente con el dia actual del dispositivo.
+- La sesion queda guardada en ese navegador y se reutiliza en las siguientes sesiones.
 - El codigo del catador o juez queda guardado en ese navegador y se reutiliza en las siguientes sesiones.
 - El ultimo valor escrito en `Producto o lote` tambien queda guardado en ese navegador.
-- Al pulsar `Limpiar formulario` o tras guardar, se conservan el codigo del catador y el producto/lote guardados.
+- Al pulsar `Limpiar formulario` o tras guardar, se conservan la sesion, el codigo del catador y el producto/lote guardados.
 
 ## Google Sheets
 
