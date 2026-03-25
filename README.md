@@ -1,6 +1,6 @@
 # SALMON
 
-Aplicacion web estatica para registrar participantes de una cata y guardar respuestas con sliders de 0 a 100.
+Aplicacion web estatica para registrar participantes de una cata y guardar respuestas con sliders de 0 a 7.
 
 ## Archivos
 
