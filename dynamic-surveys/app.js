@@ -9,7 +9,7 @@
   };
 
   const sliderScale = {
-    min: 0,
+    min: 1,
     max: 7,
     step: 1,
     legacyMax: 100
@@ -334,15 +334,19 @@
   function getQuestionValue(question) {
     const rawValue = Number(question.defaultValue);
     if (!Number.isFinite(rawValue)) {
-      return Math.round((sliderScale.max - sliderScale.min) / 2);
+      return Math.round((sliderScale.min + sliderScale.max) / 2);
     }
 
     if (rawValue >= sliderScale.min && rawValue <= sliderScale.max) {
       return rawValue;
     }
 
-    if (rawValue >= sliderScale.min && rawValue <= sliderScale.legacyMax) {
-      const normalized = Math.round((rawValue / sliderScale.legacyMax) * sliderScale.max);
+    if (rawValue >= 0 && rawValue <= sliderScale.max) {
+      return clamp(rawValue, sliderScale.min, sliderScale.max);
+    }
+
+    if (rawValue >= 0 && rawValue <= sliderScale.legacyMax) {
+      const normalized = Math.round((rawValue / sliderScale.legacyMax) * (sliderScale.max - sliderScale.min)) + sliderScale.min;
       return clamp(normalized, sliderScale.min, sliderScale.max);
     }
 

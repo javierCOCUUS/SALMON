@@ -12,7 +12,7 @@ Aplicacion separada para cargar encuestas desde Google Sheets y guardar cada enc
 
 ## Comportamiento del formulario
 
-- Las preguntas se responden con sliders de `0` a `7`.
+- Las preguntas se responden con sliders de `1` a `7`.
 - La fecha se rellena automaticamente con el dia actual del dispositivo.
 - La sesion queda guardada en ese navegador y se reutiliza en las siguientes sesiones.
 - El codigo del catador o juez queda guardado en ese navegador y se reutiliza en las siguientes sesiones.
