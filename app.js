@@ -147,7 +147,7 @@
       const slider = document.createElement("input");
       slider.type = "range";
       slider.min = "0";
-      slider.max = "100";
+      slider.max = "7";
       slider.step = "1";
       slider.name = question.id;
       slider.id = question.id;
