@@ -159,7 +159,7 @@
 
       const scale = document.createElement("div");
       scale.className = "slider-scale";
-      scale.innerHTML = `<span>${question.minLabel || "0"}</span><span>${question.maxLabel || "100"}</span>`;
+      scale.innerHTML = `<span>${question.minLabel || "0"}</span><span>${question.maxLabel || "7"}</span>`;
 
       sliderRow.appendChild(slider);
       sliderRow.appendChild(scale);
