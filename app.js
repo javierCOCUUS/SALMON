@@ -328,7 +328,7 @@
           id: question.id,
           label: question.label,
           minLabel: question.minLabel || "0",
-          maxLabel: question.maxLabel || "100"
+          maxLabel: question.maxLabel || "7"
         };
       }),
       entry: entry
