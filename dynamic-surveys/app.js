@@ -8,6 +8,13 @@
     survey: null
   };
 
+  const sliderScale = {
+    min: 0,
+    max: 7,
+    step: 1,
+    legacyMax: 100
+  };
+
   const storage = {
     sessionNumber: "dynamic-surveys.session-number",
     participantCode: "dynamic-surveys.participant-code",
@@ -194,7 +201,7 @@
       const value = document.createElement("span");
       value.className = "slider-value";
       value.id = `${question.id}-value`;
-      value.textContent = String(question.defaultValue ?? 50);
+      value.textContent = String(getQuestionValue(question));
 
       header.appendChild(title);
       header.appendChild(value);
@@ -204,19 +211,19 @@
 
       const slider = document.createElement("input");
       slider.type = "range";
-      slider.min = "0";
-      slider.max = "100";
-      slider.step = "1";
+      slider.min = String(sliderScale.min);
+      slider.max = String(sliderScale.max);
+      slider.step = String(sliderScale.step);
       slider.name = question.id;
       slider.id = question.id;
-      slider.value = String(question.defaultValue ?? 50);
+      slider.value = String(getQuestionValue(question));
       slider.addEventListener("input", function () {
         value.textContent = slider.value;
       });
 
       const scale = document.createElement("div");
       scale.className = "slider-scale";
-      scale.innerHTML = `<span>${escapeHtml(question.minLabel || "0")}</span><span>${escapeHtml(question.maxLabel || "100")}</span>`;
+      scale.innerHTML = `<span>${escapeHtml(question.minLabel || String(sliderScale.min))}</span><span>${escapeHtml(question.maxLabel || String(sliderScale.max))}</span>`;
 
       sliderRow.appendChild(slider);
       sliderRow.appendChild(scale);
@@ -259,7 +266,7 @@
       hydratePersistentFields();
       state.survey.questions.forEach(function (question) {
         const slider = document.getElementById(question.id);
-        const val = String(question.defaultValue ?? 50);
+        const val = String(getQuestionValue(question));
         slider.value = val;
         document.getElementById(`${question.id}-value`).textContent = val;
       });
@@ -322,6 +329,28 @@
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  }
+
+  function getQuestionValue(question) {
+    const rawValue = Number(question.defaultValue);
+    if (!Number.isFinite(rawValue)) {
+      return Math.round((sliderScale.max - sliderScale.min) / 2);
+    }
+
+    if (rawValue >= sliderScale.min && rawValue <= sliderScale.max) {
+      return rawValue;
+    }
+
+    if (rawValue >= sliderScale.min && rawValue <= sliderScale.legacyMax) {
+      const normalized = Math.round((rawValue / sliderScale.legacyMax) * sliderScale.max);
+      return clamp(normalized, sliderScale.min, sliderScale.max);
+    }
+
+    return clamp(rawValue, sliderScale.min, sliderScale.max);
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
   }
 
   function escapeHtml(value) {
