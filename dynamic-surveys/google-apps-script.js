@@ -47,10 +47,12 @@ function handleGetSurvey(e) {
     .map(function (item) {
       return {
         id: item.id_pregunta,
+        type: String(item.tipo || "scale").trim().toLowerCase() || "scale",
         label: pickLang(item, "texto", lang),
         minLabel: pickLang(item, "min_label", lang),
         maxLabel: pickLang(item, "max_label", lang),
-        defaultValue: Number(item.valor_defecto || 50)
+        defaultValue: Number(item.valor_defecto || 50),
+        options: readOptions(item, lang)
       };
     });
 
@@ -139,6 +141,18 @@ function readInstructions(survey, lang) {
   return raw.split(/\r?\n/).map(function (item) {
     return item.trim();
   }).filter(String);
+}
+
+function readOptions(row, lang) {
+  var raw = pickLang(row, "opciones", lang);
+  if (!raw) {
+    return [];
+  }
+
+  return String(raw)
+    .split(/\r?\n|\|/)
+    .map(function (item) { return item.trim(); })
+    .filter(String);
 }
 
 function pickLang(row, prefix, lang) {

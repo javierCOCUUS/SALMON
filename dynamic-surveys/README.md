@@ -13,6 +13,7 @@ Aplicacion separada para cargar encuestas desde Google Sheets y guardar cada enc
 ## Comportamiento del formulario
 
 - Las preguntas se responden con sliders de `1` a `7`.
+- Tambien puedes crear preguntas de tipo `ranking` para ordenar opciones por preferencia.
 - La fecha se rellena automaticamente con el dia actual del dispositivo.
 - La sesion queda guardada en ese navegador y se reutiliza en las siguientes sesiones.
 - El codigo del catador o juez queda guardado en ese navegador y se reutiliza en las siguientes sesiones.
@@ -43,8 +44,14 @@ Notas:
 Cabeceras:
 
 ```text
-survey_id | orden | id_pregunta | texto_es | texto_en | min_label_es | min_label_en | max_label_es | max_label_en | valor_defecto
+survey_id | orden | id_pregunta | tipo | texto_es | texto_en | min_label_es | min_label_en | max_label_es | max_label_en | valor_defecto | opciones_es | opciones_en
 ```
+
+Notas:
+
+- `tipo`: usa `scale` para slider o `ranking` para ordenar por preferencia.
+- `opciones_*`: solo para `ranking`. Puedes separar opciones por saltos de linea o con `|`.
+- `valor_defecto`: se usa en preguntas `scale`. En `ranking` se ignora.
 
 ## Configuracion
 
@@ -79,7 +86,16 @@ https://javiercocuus.github.io/SALMON/dynamic-surveys/?survey=salmon-marzo-01&la
 6. Si quieres que sea la encuesta por defecto, marca `activa` como `TRUE`.
 7. Si habia otra encuesta activa, cambia su `activa` a `FALSE`.
 8. En la pestana `Preguntas`, crea una fila por pregunta usando el mismo `survey_id`.
-9. Define `orden`, `id_pregunta`, textos y extremos de escala en ambos idiomas.
+9. Define `orden`, `id_pregunta`, tipo, textos y extremos de escala en ambos idiomas.
+10. Si la pregunta es `ranking`, rellena `opciones_es` y `opciones_en`.
+
+Ejemplo de pregunta `ranking`:
+
+- `tipo`: `ranking`
+- `texto_es`: `Ordena las muestras por preferencia`
+- `texto_en`: `Rank the samples by preference`
+- `opciones_es`: `Muestra A|Muestra B|Muestra C`
+- `opciones_en`: `Sample A|Sample B|Sample C`
 
 ## Reglas practicas
 

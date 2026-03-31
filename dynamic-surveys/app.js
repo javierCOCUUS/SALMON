@@ -198,41 +198,139 @@
       title.className = "question-title";
       title.textContent = `${index + 1}. ${question.label}`;
 
-      const value = document.createElement("span");
-      value.className = "slider-value";
-      value.id = `${question.id}-value`;
-      value.textContent = String(getQuestionValue(question));
-
       header.appendChild(title);
-      header.appendChild(value);
-
-      const sliderRow = document.createElement("div");
-      sliderRow.className = "slider-row";
-
-      const slider = document.createElement("input");
-      slider.type = "range";
-      slider.min = String(sliderScale.min);
-      slider.max = String(sliderScale.max);
-      slider.step = String(sliderScale.step);
-      slider.name = question.id;
-      slider.id = question.id;
-      slider.value = String(getQuestionValue(question));
-      slider.addEventListener("input", function () {
-        value.textContent = slider.value;
-      });
-
-      const scale = document.createElement("div");
-      scale.className = "slider-scale";
-      scale.innerHTML = `<span>${escapeHtml(question.minLabel || String(sliderScale.min))}</span><span>${escapeHtml(question.maxLabel || String(sliderScale.max))}</span>`;
-
-      sliderRow.appendChild(slider);
-      sliderRow.appendChild(scale);
       card.appendChild(header);
-      card.appendChild(sliderRow);
+
+      if (question.type === "ranking") {
+        card.appendChild(renderRankingQuestion(question));
+      } else {
+        card.appendChild(renderScaleQuestion(question));
+      }
+
       fragment.appendChild(card);
     });
 
     els.questions.replaceChildren(fragment);
+  }
+
+  function renderScaleQuestion(question) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "slider-row";
+
+    const value = document.createElement("span");
+    value.className = "slider-value";
+    value.id = `${question.id}-value`;
+    value.textContent = String(getQuestionValue(question));
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = String(sliderScale.min);
+    slider.max = String(sliderScale.max);
+    slider.step = String(sliderScale.step);
+    slider.name = question.id;
+    slider.id = question.id;
+    slider.value = String(getQuestionValue(question));
+    slider.addEventListener("input", function () {
+      value.textContent = slider.value;
+    });
+
+    const scale = document.createElement("div");
+    scale.className = "slider-scale";
+    scale.innerHTML = `<span>${escapeHtml(question.minLabel || String(sliderScale.min))}</span><span>${escapeHtml(question.maxLabel || String(sliderScale.max))}</span>`;
+
+    wrapper.appendChild(value);
+    wrapper.appendChild(slider);
+    wrapper.appendChild(scale);
+    return wrapper;
+  }
+
+  function renderRankingQuestion(question) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "ranking-block";
+
+    const help = document.createElement("p");
+    help.className = "ranking-help";
+    help.textContent = t("rankingHelp");
+
+    const list = document.createElement("ol");
+    list.className = "ranking-list";
+    list.id = `${question.id}-ranking`;
+    list.dataset.questionId = question.id;
+
+    getRankingOptions(question).forEach(function (option, index) {
+      list.appendChild(createRankingItem(question, option, index, list));
+    });
+
+    wrapper.appendChild(help);
+    wrapper.appendChild(list);
+    return wrapper;
+  }
+
+  function createRankingItem(question, option, index, list) {
+    const item = document.createElement("li");
+    item.className = "ranking-item";
+    item.dataset.value = option;
+
+    const position = document.createElement("span");
+    position.className = "ranking-position";
+    position.textContent = String(index + 1);
+
+    const label = document.createElement("span");
+    label.className = "ranking-label";
+    label.textContent = option;
+
+    const actions = document.createElement("div");
+    actions.className = "ranking-actions";
+
+    const upButton = document.createElement("button");
+    upButton.type = "button";
+    upButton.className = "ranking-button";
+    upButton.textContent = t("moveUpShort");
+    upButton.setAttribute("aria-label", `${t("moveUp")} ${option}`);
+    upButton.addEventListener("click", function () {
+      moveRankingItem(list, item, -1);
+    });
+
+    const downButton = document.createElement("button");
+    downButton.type = "button";
+    downButton.className = "ranking-button";
+    downButton.textContent = t("moveDownShort");
+    downButton.setAttribute("aria-label", `${t("moveDown")} ${option}`);
+    downButton.addEventListener("click", function () {
+      moveRankingItem(list, item, 1);
+    });
+
+    actions.appendChild(upButton);
+    actions.appendChild(downButton);
+    item.appendChild(position);
+    item.appendChild(label);
+    item.appendChild(actions);
+
+    return item;
+  }
+
+  function moveRankingItem(list, item, direction) {
+    const sibling = direction < 0 ? item.previousElementSibling : item.nextElementSibling;
+    if (!sibling) {
+      return;
+    }
+
+    if (direction < 0) {
+      list.insertBefore(item, sibling);
+    } else {
+      list.insertBefore(sibling, item);
+    }
+
+    updateRankingPositions(list);
+  }
+
+  function updateRankingPositions(list) {
+    Array.from(list.children).forEach(function (item, index) {
+      const position = item.querySelector(".ranking-position");
+      if (position) {
+        position.textContent = String(index + 1);
+      }
+    });
   }
 
   function readMeta() {
@@ -253,7 +351,11 @@
 
   function readAnswers() {
     return state.survey.questions.reduce(function (acc, question) {
-      acc[question.id] = Number(document.getElementById(question.id).value);
+      if (question.type === "ranking") {
+        acc[question.id] = JSON.stringify(getRankingAnswer(question.id));
+      } else {
+        acc[question.id] = Number(document.getElementById(question.id).value);
+      }
       return acc;
     }, {});
   }
@@ -265,10 +367,7 @@
       els.sessionDate.value = getTodayDate();
       hydratePersistentFields();
       state.survey.questions.forEach(function (question) {
-        const slider = document.getElementById(question.id);
-        const val = String(getQuestionValue(question));
-        slider.value = val;
-        document.getElementById(`${question.id}-value`).textContent = val;
+        resetQuestion(question);
       });
     }
   }
@@ -351,6 +450,49 @@
     }
 
     return clamp(rawValue, sliderScale.min, sliderScale.max);
+  }
+
+  function getRankingOptions(question) {
+    return Array.isArray(question.options) ? question.options.filter(Boolean) : [];
+  }
+
+  function getRankingAnswer(questionId) {
+    const list = document.getElementById(`${questionId}-ranking`);
+    if (!list) {
+      return [];
+    }
+
+    return Array.from(list.children).map(function (item, index) {
+      return {
+        rank: index + 1,
+        value: item.dataset.value || ""
+      };
+    });
+  }
+
+  function resetQuestion(question) {
+    if (question.type === "ranking") {
+      const list = document.getElementById(`${question.id}-ranking`);
+      if (!list) {
+        return;
+      }
+
+      list.replaceChildren();
+      getRankingOptions(question).forEach(function (option, index) {
+        list.appendChild(createRankingItem(question, option, index, list));
+      });
+      updateRankingPositions(list);
+      return;
+    }
+
+    const slider = document.getElementById(question.id);
+    if (!slider) {
+      return;
+    }
+
+    const val = String(getQuestionValue(question));
+    slider.value = val;
+    document.getElementById(`${question.id}-value`).textContent = val;
   }
 
   function clamp(value, min, max) {

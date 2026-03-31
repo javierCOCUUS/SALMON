@@ -28,7 +28,12 @@ window.DYNAMIC_SURVEYS_CONFIG = {
       missingEndpoint: "Falta configurar la URL del Apps Script.",
       noQuestions: "La encuesta no tiene preguntas configuradas.",
       fillMeta: "Completa los datos obligatorios.",
-      surveyLoaded: "Encuesta cargada."
+      surveyLoaded: "Encuesta cargada.",
+      rankingHelp: "Ordena las opciones de mayor a menor preferencia.",
+      moveUp: "Subir",
+      moveDown: "Bajar",
+      moveUpShort: "Subir",
+      moveDownShort: "Bajar"
     },
     en: {
       appBadge: "Dynamic surveys",
@@ -54,7 +59,12 @@ window.DYNAMIC_SURVEYS_CONFIG = {
       missingEndpoint: "Apps Script URL is not configured.",
       noQuestions: "The survey has no configured questions.",
       fillMeta: "Complete the required fields.",
-      surveyLoaded: "Survey loaded."
+      surveyLoaded: "Survey loaded.",
+      rankingHelp: "Order the options from highest to lowest preference.",
+      moveUp: "Move up",
+      moveDown: "Move down",
+      moveUpShort: "Up",
+      moveDownShort: "Down"
     }
   }
 };
