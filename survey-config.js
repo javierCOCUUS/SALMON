@@ -2,7 +2,7 @@ window.SALMON_SURVEY = {
   title: "FICHA EVALUACION SENSORIAL",
   storageMode: "remote",
   remote: {
-    endpointUrl: "https://script.google.com/macros/s/AKfycbyUXQpI6aiUaO1FTVnEgRZ6YzJfCYH-rfRxM-r8x9Ni2C1jg97hWP-lg5cDT9pNbRg_/exec",
+    endpointUrl: "https://script.google.com/macros/s/AKfycby8T6m565iVk99rqj1GRqPSuE7O00HzHwcSZophQxQRSaKzc8Gkb9TjJ48c-G-Thj0h/exec",
     spreadsheetId: "1hFiZNTfYn7lgudhcSBatdz-G9bNTY540xyzQ1E2MNig",
     sheetName: "Respuestas"
   },

@@ -1,75 +1,187 @@
-function doPost(e) {
+function doGet(e) {
   try {
-    var payload = JSON.parse(e.postData.contents || "{}");
-    var spreadsheetId = payload.spreadsheetId;
-    var sheetName = payload.sheetName || "Respuestas";
-    var entry = payload.entry || {};
-    var participant = entry.participant || {};
-    var answers = entry.answers || {};
-    var questions = Array.isArray(payload.questions) ? payload.questions : [];
-
-    if (!spreadsheetId) {
-      return jsonResponse({ ok: false, error: "Missing spreadsheetId" });
+    var action = (e.parameter.action || "").trim();
+    if (action === "getSurvey") {
+      return jsonResponse(handleGetSurvey(e));
     }
-
-    var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-    var sheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
-
-    var baseHeaders = [
-      "id",
-      "createdAt",
-      "surveyTitle",
-      "sessionDate",
-      "sessionNumber",
-      "participantCode",
-      "productBatch",
-      "sampleCode",
-      "notes"
-    ];
-
-    var questionHeaders = questions.map(function (question) {
-      return "q_" + question.id;
-    });
-
-    var labelHeaders = questions.map(function (question) {
-      return "label_" + question.id;
-    });
-
-    var headers = baseHeaders.concat(questionHeaders, labelHeaders);
-    ensureHeaders(sheet, headers);
-
-    var headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    var rowMap = {
-      id: entry.id || "",
-      createdAt: entry.createdAt || new Date().toISOString(),
-      surveyTitle: payload.surveyTitle || "",
-      sessionDate: participant.sessionDate || "",
-      sessionNumber: participant.sessionNumber || "",
-      participantCode: participant.participantCode || "",
-      productBatch: participant.productBatch || "",
-      sampleCode: participant.sampleCode || "",
-      notes: participant.notes || ""
-    };
-
-    questions.forEach(function (question) {
-      rowMap["q_" + question.id] = answers[question.id] ?? "";
-      rowMap["label_" + question.id] = question.label || question.id;
-    });
-
-    var row = headerRow.map(function (header) {
-      return Object.prototype.hasOwnProperty.call(rowMap, header) ? rowMap[header] : "";
-    });
-
-    sheet.appendRow(row);
-
-    return jsonResponse({ ok: true });
+    return jsonResponse({ ok: true, service: "Dynamic Surveys bridge" });
   } catch (error) {
     return jsonResponse({ ok: false, error: String(error) });
   }
 }
 
-function doGet() {
-  return jsonResponse({ ok: true, service: "SALMON Google Sheets bridge" });
+function doPost(e) {
+  try {
+    var payload = JSON.parse(e.postData.contents || "{}");
+    var action = payload.action || "";
+    if (action === "submitResponse") {
+      return jsonResponse(handleSubmitResponse(payload));
+    }
+    return jsonResponse({ ok: false, error: "Unsupported action" });
+  } catch (error) {
+    return jsonResponse({ ok: false, error: String(error) });
+  }
+}
+
+function handleGetSurvey(e) {
+  var spreadsheet = SpreadsheetApp.openById(e.parameter.spreadsheetId);
+  var surveySheet = getSheetOrThrow(spreadsheet, "Encuestas");
+  var questionSheet = getSheetOrThrow(spreadsheet, "Preguntas");
+  var lang = (e.parameter.lang || "es").trim();
+  var surveyId = (e.parameter.surveyId || "").trim();
+
+  var surveys = sheetToObjects(surveySheet);
+  var questions = sheetToObjects(questionSheet);
+
+  var survey = surveyId
+    ? surveys.find(function (item) { return item.survey_id === surveyId; })
+    : surveys.find(function (item) { return String(item.activa).toUpperCase() === "TRUE" || String(item.activa).toUpperCase() === "SI"; });
+
+  if (!survey) {
+    throw new Error("Survey not found");
+  }
+
+  var surveyQuestions = questions
+    .filter(function (item) { return item.survey_id === survey.survey_id; })
+    .sort(function (a, b) { return Number(a.orden || 0) - Number(b.orden || 0); })
+    .map(function (item) {
+      return {
+        id: item.id_pregunta,
+        type: String(item.tipo || "scale").trim().toLowerCase() || "scale",
+        label: pickLang(item, "texto", lang),
+        minLabel: pickLang(item, "min_label", lang),
+        maxLabel: pickLang(item, "max_label", lang),
+        defaultValue: Number(item.valor_defecto || 50),
+        options: readOptions(item, lang)
+      };
+    });
+
+  var instructions = readInstructions(survey, lang);
+
+  return {
+    ok: true,
+    survey: {
+      id: survey.survey_id,
+      title: pickLang(survey, "titulo", lang),
+      description: pickLang(survey, "descripcion", lang),
+      sheetName: survey.sheet_respuestas,
+      session: {
+        date: survey.fecha || "",
+        number: survey.sesion || ""
+      },
+      instructions: instructions,
+      questions: surveyQuestions
+    }
+  };
+}
+
+function handleSubmitResponse(payload) {
+  var spreadsheet = SpreadsheetApp.openById(payload.spreadsheetId);
+  var surveySheet = getSheetOrThrow(spreadsheet, "Encuestas");
+  var surveys = sheetToObjects(surveySheet);
+  var survey = surveys.find(function (item) { return item.survey_id === payload.surveyId; });
+  if (!survey) {
+    throw new Error("Survey not found");
+  }
+
+  var sheetName = survey.sheet_respuestas;
+  if (!sheetName) {
+    throw new Error("sheet_respuestas is required");
+  }
+
+  var sheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+  var entry = payload.entry || {};
+  var participant = entry.participant || {};
+  var answers = entry.answers || {};
+  var baseHeaders = [
+    "id",
+    "createdAt",
+    "surveyId",
+    "sessionDate",
+    "sessionNumber",
+    "participantCode",
+    "productBatch",
+    "sampleCode",
+    "notes"
+  ];
+
+  var answerHeaders = Object.keys(answers).sort();
+  ensureHeaders(sheet, baseHeaders.concat(answerHeaders));
+  var headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+  var rowMap = {
+    id: entry.id || "",
+    createdAt: entry.createdAt || new Date().toISOString(),
+    surveyId: payload.surveyId,
+    sessionDate: participant.sessionDate || "",
+    sessionNumber: participant.sessionNumber || "",
+    participantCode: participant.participantCode || "",
+    productBatch: participant.productBatch || "",
+    sampleCode: participant.sampleCode || "",
+    notes: participant.notes || ""
+  };
+
+  Object.keys(answers).forEach(function (key) {
+    rowMap[key] = answers[key];
+  });
+
+  var row = headerRow.map(function (header) {
+    return Object.prototype.hasOwnProperty.call(rowMap, header) ? rowMap[header] : "";
+  });
+  sheet.appendRow(row);
+
+  return { ok: true };
+}
+
+function readInstructions(survey, lang) {
+  var raw = pickLang(survey, "instrucciones", lang);
+  if (!raw) {
+    return [];
+  }
+  return raw.split(/\r?\n/).map(function (item) {
+    return item.trim();
+  }).filter(String);
+}
+
+function readOptions(row, lang) {
+  var raw = pickLang(row, "opciones", lang);
+  if (!raw) {
+    return [];
+  }
+
+  return String(raw)
+    .split(/\r?\n|\||;/)
+    .map(function (item) { return item.trim(); })
+    .filter(String);
+}
+
+function pickLang(row, prefix, lang) {
+  return row[prefix + "_" + lang] || row[prefix + "_es"] || row[prefix + "_en"] || "";
+}
+
+function getSheetOrThrow(spreadsheet, name) {
+  var sheet = spreadsheet.getSheetByName(name);
+  if (!sheet) {
+    throw new Error("Missing sheet: " + name);
+  }
+  return sheet;
+}
+
+function sheetToObjects(sheet) {
+  var values = sheet.getDataRange().getValues();
+  if (!values.length) {
+    return [];
+  }
+  var headers = values[0];
+  return values.slice(1).filter(function (row) {
+    return row.some(function (cell) { return cell !== ""; });
+  }).map(function (row) {
+    var obj = {};
+    headers.forEach(function (header, index) {
+      obj[String(header).trim()] = row[index];
+    });
+    return obj;
+  });
 }
 
 function ensureHeaders(sheet, expectedHeaders) {
@@ -77,17 +189,14 @@ function ensureHeaders(sheet, expectedHeaders) {
     sheet.getRange(1, 1, 1, expectedHeaders.length).setValues([expectedHeaders]);
     return;
   }
-
   var currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var missingHeaders = expectedHeaders.filter(function (header) {
+  var missing = expectedHeaders.filter(function (header) {
     return currentHeaders.indexOf(header) === -1;
   });
-
-  if (!missingHeaders.length) {
+  if (!missing.length) {
     return;
   }
-
-  sheet.getRange(1, currentHeaders.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
+  sheet.getRange(1, currentHeaders.length + 1, 1, missing.length).setValues([missing]);
 }
 
 function jsonResponse(payload) {
