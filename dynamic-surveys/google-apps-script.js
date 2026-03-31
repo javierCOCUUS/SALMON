@@ -150,7 +150,7 @@ function readOptions(row, lang) {
   }
 
   return String(raw)
-    .split(/\r?\n|\|/)
+    .split(/\r?\n|\||;/)
     .map(function (item) { return item.trim(); })
     .filter(String);
 }

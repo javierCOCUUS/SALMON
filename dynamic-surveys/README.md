@@ -50,7 +50,7 @@ survey_id | orden | id_pregunta | tipo | texto_es | texto_en | min_label_es | mi
 Notas:
 
 - `tipo`: usa `scale` para slider o `ranking` para ordenar por preferencia.
-- `opciones_*`: solo para `ranking`. Puedes separar opciones por saltos de linea o con `|`.
+- `opciones_*`: solo para `ranking`. Puedes ponerlas en una sola celda separadas por `;`, por `|` o por saltos de linea.
 - `valor_defecto`: se usa en preguntas `scale`. En `ranking` se ignora.
 
 ## Configuracion
@@ -94,8 +94,8 @@ Ejemplo de pregunta `ranking`:
 - `tipo`: `ranking`
 - `texto_es`: `Ordena las muestras por preferencia`
 - `texto_en`: `Rank the samples by preference`
-- `opciones_es`: `Muestra A|Muestra B|Muestra C`
-- `opciones_en`: `Sample A|Sample B|Sample C`
+- `opciones_es`: `318; 214; 569`
+- `opciones_en`: `318; 214; 569`
 
 ## Reglas practicas
 
